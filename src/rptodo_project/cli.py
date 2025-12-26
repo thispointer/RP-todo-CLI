@@ -129,9 +129,7 @@ def list_todos() -> None:
 def toggle(
     todo_id: Annotated[
         int,
-        typer.Argument(
-            ..., help="ID of the to-do item to set or unset the done status."
-        ),
+        typer.Argument(..., help="ID of the to-do item to set or unset the done status."),
     ],
 ) -> None:
     """Toggle completed/not-completed state of a to-do item."""
