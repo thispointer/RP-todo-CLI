@@ -1,0 +1,52 @@
+[project]
+name = "rptodo-project"
+version = "0.1.0"
+description = "Example project with uv, Typer CLI to manage a simple to-do list. Taken from RealPython.com"
+readme = "README.md"
+license = { text = "MIT" } # or your real license
+keywords = ["cli", "todo", "typer", "uv", "RealPython.com"]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Console",
+]
+authors = [
+    { name = "thispointer", email = "1307705+thispointer@users.noreply.github.com" },
+]
+requires-python = ">=3.12"
+dependencies = ["typer>=0.21.0"]
+
+[project.scripts]
+rptodo-project = "rptodo_project.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.1",
+    "pre-commit>=4.5.1",
+    "pytest>=9.0.2",
+    "pytest-benchmark>=5.2.3",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.10",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["F841"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+exclude = 'tests/.*'
