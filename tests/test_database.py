@@ -38,7 +38,9 @@ def test_get_database_path(tmp_path):
 def test_read_todos(tmp_path):
     """Test reading todos from database."""
     db_path = tmp_path / "test.db"
-    todo_data = [{"id": 1, "description": "Test task.", "priority": 2, "completed": False}]
+    todo_data = [
+        {"id": 1, "description": "Test task.", "priority": 2, "completed": False}
+    ]
     db_path.write_text(json.dumps(todo_data))
 
     handler = database.DatabaseHandler(db_path)
@@ -90,7 +92,9 @@ def test_write_todos(tmp_path):
 
     handler = database.DatabaseHandler(db_path)
     todos = [
-        ToDoItem(id=1, description="Task one.", priority=Priority.NORMAL, completed=False),
+        ToDoItem(
+            id=1, description="Task one.", priority=Priority.NORMAL, completed=False
+        ),
         ToDoItem(id=2, description="Task two.", priority=Priority.HIGH, completed=True),
     ]
 

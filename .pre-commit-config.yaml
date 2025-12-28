@@ -1,8 +1,13 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9 # pin to a version matching/close to your Ruff
+    rev: v0.14.10 # pin to a version matching/close to your Ruff
     hooks:
       - id: ruff
         args: ["--config=pyproject.toml"]
       - id: ruff-format
         args: ["--config=pyproject.toml"]
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.338
+    hooks:
+      - id: pyright

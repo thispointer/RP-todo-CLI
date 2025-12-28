@@ -2,10 +2,9 @@
 # rptodo/cli.py
 
 from pathlib import Path
-from typing import Optional
+from typing import Annotated
 
 import typer
-from typing_extensions import Annotated
 
 from rptodo_project import (
     ERRORS,
@@ -81,7 +80,7 @@ def add(
         prio = Priority(priority)
     except ValueError:
         typer.secho("Invalid priority value.", fg=typer.colors.RED)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from None
 
     current = todoer.add(description=description, priority=prio)
 
@@ -89,13 +88,14 @@ def add(
         # Use ERRORS mapping you already import
         msg = ERRORS.get(current.error, "Unknown error")
         typer.secho(f"Error while adding to-do: {msg}", fg=typer.colors.RED)
-        raise typer.Exit(code=current.error)
+        raise typer.Exit(code=current.error) from None
 
     # Success: show what has been added
     item = current.todo
     assert item is not None
     typer.secho(
-        f'To-do added: [id={item.id}] "{item.description}" (priority={item.priority.name})',
+        f'To-do added: [id={item.id}] "{item.description}" \
+            (priority={item.priority.name})',
         fg=typer.colors.GREEN,
     )
 
@@ -108,7 +108,7 @@ def list_todos() -> None:
 
     if not todo_list:
         typer.secho("No to-do items found in the database.", fg=typer.colors.CYAN)
-        raise typer.Exit(code=SUCCESS)
+        raise typer.Exit(code=SUCCESS) from None
 
     typer.secho("\nCurrent To-Do list:\n", fg=typer.colors.BLUE, bold=True)
     columns = f"{'ID':>3s} {'Done':^5s} {'Priority':^14s} Description" + " " * 14
@@ -129,7 +129,9 @@ def list_todos() -> None:
 def toggle(
     todo_id: Annotated[
         int,
-        typer.Argument(..., help="ID of the to-do item to set or unset the done status."),
+        typer.Argument(
+            ..., help="ID of the to-do item to set or unset the done status."
+        ),
     ],
 ) -> None:
     """Toggle completed/not-completed state of a to-do item."""
@@ -234,7 +236,7 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def main(
     version: Annotated[
-        Optional[bool],
+        bool | None,
         typer.Option(
             "--version",
             "-v",

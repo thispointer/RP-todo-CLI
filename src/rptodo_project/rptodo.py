@@ -18,7 +18,9 @@ class Todoer:
     def __init__(self, db_path: Path) -> None:
         self._db_handler = DatabaseHandler(db_path)
 
-    def add(self, description: list[str], priority: Priority = Priority.NORMAL) -> CurrentTodo:
+    def add(
+        self, description: list[str], priority: Priority = Priority.NORMAL
+    ) -> CurrentTodo:
         """Add a todo and return CurrentTodo with error code."""
         text = " ".join(description).strip()
         if not text:
@@ -42,7 +44,7 @@ class Todoer:
         todo = ToDoItem(id=next_id, description=text, priority=priority)
 
         # 3. Append and write back
-        new_list = list(read.todo_list) + [todo]
+        new_list = [*list(read.todo_list), todo]
         write = self._db_handler.write_todos(new_list)
 
         return CurrentTodo(todo=todo, error=write.error)
@@ -66,7 +68,9 @@ class Todoer:
 
         # find item by id, not by position
         try:
-            index = next(i for i, item in enumerate(read.todo_list) if item.id == todo_id)
+            index = next(
+                i for i, item in enumerate(read.todo_list) if item.id == todo_id
+            )
         except StopIteration:
             return CurrentTodo(todo=None, error=ID_ERROR)
 
@@ -95,7 +99,9 @@ class Todoer:
 
         # find item by id, not by position
         try:
-            index = next(i for i, item in enumerate(read.todo_list) if item.id == todo_id)
+            index = next(
+                i for i, item in enumerate(read.todo_list) if item.id == todo_id
+            )
         except StopIteration:
             return CurrentTodo(todo=None, error=ID_ERROR)
 
@@ -113,7 +119,9 @@ class Todoer:
 
         # find item by id, not by position
         try:
-            index = next(i for i, item in enumerate(read.todo_list) if item.id == todo_id)
+            index = next(
+                i for i, item in enumerate(read.todo_list) if item.id == todo_id
+            )
         except StopIteration:
             return CurrentTodo(todo=None, error=ID_ERROR)
 
