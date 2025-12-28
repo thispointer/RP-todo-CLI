@@ -46,7 +46,7 @@ htmlcov/
 .mypy_cache/
 .benchmarks/
 
-# Application instance data 
+# Application instance data
 config.ini
 .default_todo_db.json
 *.ini

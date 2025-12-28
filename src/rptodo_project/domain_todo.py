@@ -3,9 +3,9 @@
 """Domain objects for RPToDo Project."""
 # rptodo_project/domain_todo.py
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import IntEnum, unique
-from typing import Optional, Sequence
 
 
 @unique
@@ -26,7 +26,7 @@ class ToDoItem:
 
 @dataclass(frozen=True)
 class CurrentTodo:
-    todo: Optional[ToDoItem]
+    todo: ToDoItem | None
     error: int
 
 

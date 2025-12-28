@@ -3,7 +3,7 @@ name = "rptodo-project"
 version = "0.1.0"
 description = "Example project with uv, Typer CLI to manage a simple to-do list. Taken from RealPython.com"
 readme = "README.md"
-license = { text = "MIT" } # or your real license
+license = { text = "MIT" }
 keywords = ["cli", "todo", "typer", "uv", "RealPython.com"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
@@ -33,22 +33,96 @@ dev = [
     "ruff>=0.14.10",
 ]
 
+# ═══════════════════════════════════════════════════════════
+# RUFF: Linting & Formatting
+# ═══════════════════════════════════════════════════════════
 [tool.ruff]
 target-version = "py312"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "PTH", "B", "SIM", "RUF", "UP"]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "PTH", # pathlib (prevents os.path issues)
+    "B",   # bugbear (logic errors)
+    "SIM", # simplifications (edge-case bugs)
+    "RUF", # ruff-specific checks
+    "UP",  # pyupgrade (modern syntax)
+    "S",   # bandit (security) - ADDED
+    "C90", # mccabe (complexity) - ADDED
+]
+
+# Ignore specifieke regels indien nodig
+ignore = [
+    "S101", # Allow assert statements (used in test)
+]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["F841"]
+"tests/**/*.py" = [
+    "F841", # Unused variables (regularly in test fixtures)
+    "S101", # Allow assert in tests
+]
 
+[tool.ruff.lint.mccabe]
+max-complexity = 10 # Waarschuwing bij functies met >10 complexity
+
+# ═══════════════════════════════════════════════════════════
+# PYRIGHT: Type Checking
+# ═══════════════════════════════════════════════════════════
 [tool.pyright]
-pythonPlatform = "Linux"
-stubPath = "typings"     # Voor custom stubs (optioneel)
-include = ["src"]
-# Helps  Pyright to find the right dependencies in WSL environment
+pythonVersion = "3.12"
+pythonPlatform = "Linux" # WSL Ubuntu
+include = ["src", "rptodo_project"]
+exclude = [
+    "**/__pycache__",
+    "**/.venv",
+    "**/node_modules",
+    "**/.git",
+    "build",
+    "dist",
+]
 venvPath = "."
 venv = ".venv"
 typeCheckingMode = "basic"
 reportMissingTypeStubs = "warning"
+reportUnusedImport = "warning"
+reportUnusedVariable = "warning"
+
+# Strictere checks (optioneel - schakel in als je wilt)
+# reportMissingImports = "error"
+# reportUndefinedVariable = "error"
+
+# ═══════════════════════════════════════════════════════════
+# PYTEST: Testing
+# ═══════════════════════════════════════════════════════════
+[tool.pytest.ini_options]
+minversion = "9.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = [
+    "--verbose",
+    "--strict-markers",
+    "--cov=rptodo_project",
+    "--cov-branch",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+# ═══════════════════════════════════════════════════════════
+# COVERAGE: Code Coverage Settings
+# ═══════════════════════════════════════════════════════════
+[tool.coverage.run]
+source = ["rptodo_project"]
+omit = ["*/tests/*", "*/__main__.py", "*/setup.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

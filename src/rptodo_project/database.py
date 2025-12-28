@@ -2,7 +2,7 @@ import configparser
 import json
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 from rptodo_project import DB_READ_ERROR, DB_WRITE_ERROR, JSON_ERROR, SUCCESS
 from rptodo_project.domain_todo import DBResponse, Priority, ToDoItem
@@ -36,7 +36,7 @@ class DatabaseHandler:
             # File I/O problems (missing file, permissions, etc.)
             return DBResponse(todo_list=[], error=DB_READ_ERROR)
 
-        items: List[ToDoItem] = [todo_from_dict(d) for d in raw_list]
+        items: list[ToDoItem] = [todo_from_dict(d) for d in raw_list]
         return DBResponse(todo_list=items, error=SUCCESS)
 
     def write_todos(self, todo_list: list[ToDoItem]) -> DBResponse:
