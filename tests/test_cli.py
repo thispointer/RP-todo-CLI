@@ -154,7 +154,9 @@ def test_list_command_without_init(tmp_path: Path):
     # Don't initialize, just try to list
     result = runner.invoke(cli.app, ["list"])
     assert result.exit_code == SUCCESS
-    assert "No to-do items found" in result.stdout or "Current To-Do list" in result.stdout
+    assert (
+        "No to-do items found" in result.stdout or "Current To-Do list" in result.stdout
+    )
 
 
 def test_toggle_command_without_init(tmp_path: Path):
