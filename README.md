@@ -1,5 +1,11 @@
 # RPToDo - A Command-Line To-Do Manager
 
+![Python Version](https://img.shields.io/badge/python-3.12-blue)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![CI](https://github.com/thispointer/RP-todo-CLI/actions/workflows/ci.yml/badge.svg?branch=trunk)](https://github.com/thispointer/RP-todo-CLI/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/thispointer/RP-todo-CLI/graph/badge.svg?token=GRDWM697US)](https://codecov.io/github/thispointer/RP-todo-CLI)
+
+
 A simple, efficient to-do list manager built with Python and Typer.
 
 ## Features
@@ -70,3 +76,7 @@ src/rptodo_project/
 ├── domain_todo.py      # Domain models
 └── rptodo.py           # Business logic
 ```
+
+## Code Coverage Tests
+
+[![Codecov](https://codecov.io/github/thispointer/RP-todo-CLI/graphs/sunburst.svg?token=GRDWM697US)
