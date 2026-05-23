@@ -1,0 +1,135 @@
+# .github/workflows/ci-with-sbom.yml
+name: CI with SBOM
+
+on:
+    push:
+        branches: [trunk, develop]
+    pull_request:
+        branches: [trunk, develop]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+            - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5.4.1
+              with:
+                  enable-cache: true
+            - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+              with:
+                  python-version: "3.12"
+            - run: uv sync --dev
+            - run: uv run ruff check --output-format=github .
+            - run: uv run ruff format --check .
+            - run: uv run pyright
+
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: ["3.12", "3.13"]
+        steps:
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+            - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5.4.1
+              with:
+                  enable-cache: true
+            - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - run: uv sync --dev
+            - run: uv run pytest --cov --cov-branch --cov-report=xml --cov-report=term
+            - uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
+              if: matrix.python-version == '3.12'
+              with:
+                  files: ./coverage.xml
+                  fail_ci_if_error: false
+                  token: ${{ secrets.CODECOV_TOKEN }}
+
+    build-and-sign:
+        runs-on: ubuntu-latest
+        needs: [lint, test]
+        permissions:
+            contents: write
+            id-token: write
+        outputs:
+            hashes: ${{ steps.hash.outputs.hashes }}
+        steps:
+            - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+            - uses: astral-sh/setup-uv@0c5e2b8115b80b4c7c5ddf6ffdd634974642d182 # v5.4.1
+            - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+              with:
+                  python-version: "3.12"
+            - run: uv sync --dev
+
+            - name: Build package
+              run: uv build
+
+            - name: Compute artifact hashes
+              id: hash
+              run: |
+                  sha256sum dist/* | base64 -w0 > hashes.txt
+                  echo "hashes=$(cat hashes.txt)" >> "$GITHUB_OUTPUT"
+
+            - name: Generate SBOM (CycloneDX)
+              run: |
+                  uv tool install cyclonedx-bom
+                  uv export --no-hashes -o requirements.txt
+                  uvx cyclonedx-py requirements \
+                    -i requirements.txt \
+                    -o sbom.json \
+                    --format json \
+                    --schema-version 1.6
+
+            - name: Run Trivy vulnerability scanner (SARIF)
+              uses: aquasecurity/trivy-action@6c175e9c4083a92bbca2f9724c8a5e33bc2d97a5 # v0.30.0
+              with:
+                  scan-type: fs
+                  scan-ref: .
+                  format: sarif
+                  output: trivy-results.sarif
+
+            - name: Upload Trivy SARIF to GitHub Security
+              uses: github/codeql-action/upload-sarif@f35333b910470a5408cb081b68f0701254a7d27b # v3.28.18
+              with:
+                  sarif_file: trivy-results.sarif
+
+            - name: Run Trivy vulnerability scanner (table)
+              uses: aquasecurity/trivy-action@6c175e9c4083a92bbca2f9724c8a5e33bc2d97a5 # v0.30.0
+              with:
+                  scan-type: fs
+                  scan-ref: .
+                  format: table
+                  output: trivy-summary.txt
+
+            - uses: sigstore/cosign-installer@053f9b74638557590800a301da1ba82351507e2c # v3.8.1
+
+            - name: Sign wheel and SBOM
+              run: |
+                  cosign sign-blob --yes \
+                    --bundle dist/cosign.bundle \
+                    dist/*.whl
+
+                  cosign sign-blob --yes \
+                    --bundle sbom-cosign.bundle \
+                    sbom.json
+
+            - name: Upload signed artifacts
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+              with:
+                  name: dist-signed
+                  path: |
+                      dist/
+                      sbom.json
+                      trivy-summary.txt
+                      sbom-cosign.bundle
+
+    provenance:
+        needs: [build-and-sign]
+        permissions:
+            actions: read
+            id-token: write
+            contents: write
+        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
+        with:
+            base64-subjects: "${{ needs.build-and-sign.outputs.hashes }}"
+            upload-assets: true
