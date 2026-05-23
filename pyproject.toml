@@ -15,7 +15,7 @@ authors = [
     { name = "thispointer", email = "1307705+thispointer@users.noreply.github.com" },
 ]
 requires-python = ">=3.12"
-dependencies = ["typer>=0.21.0"]
+dependencies = ["typer>=0.25.1"]
 
 [project.scripts]
 rptodo-project = "rptodo_project.__main__:main"
