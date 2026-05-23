@@ -83,7 +83,7 @@ jobs:
                   uv export --no-hashes | uvx --from cyclonedx-bom cyclonedx-py requirements - > sbom.json
 
             - name: Run Trivy vulnerability scanner (SARIF)
-              uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # v0.32.0
+              uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
               with:
                   scan-type: fs
                   scan-ref: .
@@ -96,7 +96,7 @@ jobs:
                   sarif_file: trivy-results.sarif
 
             - name: Run Trivy vulnerability scanner (table)
-              uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # v0.32.0
+              uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 # v0.36.0
               with:
                   scan-type: fs
                   scan-ref: .
