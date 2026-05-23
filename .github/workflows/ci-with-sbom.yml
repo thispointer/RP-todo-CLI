@@ -76,17 +76,11 @@ jobs:
               id: hash
               run: |
                   sha256sum dist/* | base64 -w0 > hashes.txt
-                  echo "hashes=$(cat hashes.txt)" >> "$GITHUB_OUTPUT"
+                  echo "hashes=$(cat hashes.txt)" >> "$GITHUB_OUTPUT
 
             - name: Generate SBOM (CycloneDX)
               run: |
-                  uv tool install cyclonedx-bom
-                  uv export --no-hashes -o requirements.txt
-                  uvx cyclonedx-py requirements \
-                    -i requirements.txt \
-                    -o sbom.json \
-                    --format json \
-                    --schema-version 1.6
+                  uv export --no-hashes | uvx --from cyclonedx-bom cyclonedx-py requirements - > sbom.json
 
             - name: Run Trivy vulnerability scanner (SARIF)
               uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # v0.32.0
