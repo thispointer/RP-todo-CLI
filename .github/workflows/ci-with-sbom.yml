@@ -46,7 +46,7 @@ jobs:
                   python-version: ${{ matrix.python-version }}
             - run: uv sync --dev
             - run: uv run pytest --cov --cov-branch --cov-report=xml --cov-report=term
-            - uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
+            - uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
               if: matrix.python-version == '3.12'
               with:
                   files: ./coverage.xml
